@@ -1,20 +1,22 @@
 import Head from "next/head";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 const data: number[] = new Array(10_000).fill(0);
 export default function Home() {
-  const time = Date.now();
+  // if we won't do that way we will get hydration error, since that component is runing on the server, and reruning on the client.
+  const [time, setTime] = useState(0);
+  useEffect(() => {
+    setTime(Date.now());
+  }, []);
   return (
     <>
       <Head>
         <title>pages dir</title>
       </Head>
       <main>
-        {/* <Suspense fallback={<div>loading...</div>}> */}
-          {data.map((n, i) => (
-            <Child key={i * 1000} initialTime={time} position={i} />
-          ))}
-        {/* </Suspense> */}
+        {data.map((n, i) => (
+          <Child key={i * 1000} initialTime={time} position={i} />
+        ))}
       </main>
     </>
   );
@@ -27,9 +29,14 @@ function Child({
   initialTime: number;
   position: number;
 }) {
+  // if we won't do that way we will get hydration error, since that component is runing on the server, and reruning on the client.
+  const [currentTime, setCurrentTime] = useState(0);
+  useEffect(() => {
+    setCurrentTime(Date.now() - initialTime);
+  }, [initialTime]);
   return (
     <>
-      <div>{Date.now() - initialTime}ms</div>
+      <div>{currentTime}ms</div>
       <div>{position}</div>
     </>
   );
